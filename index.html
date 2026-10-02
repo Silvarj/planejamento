@@ -8,11 +8,35 @@
         body { font-family: sans-serif; text-align: center; padding: 50px; background: #f5f7fa; }
         h1 { color: #2f6bff; }
         a { color: #2f6bff; font-size: 18px; }
+        #erro { color: #b00; margin-top: 18px; display: none; }
     </style>
 </head>
 <body>
     <h1>Planejamento</h1>
     <p>Redirecionando...</p>
-    <p>Se não redirecionar, <a href="https://benefit-excerpt-bowling-acid.trycloudflare.com">clique aqui</a>.</p>
+    <p><a href="https://benefit-excerpt-bowling-acid.trycloudflare.com">Clique aqui se nao abrir sozinho</a>.</p>
+    <p id="erro">Nao consegui falar com o computador da escola. Tentando de novo...</p>
+    <script>
+    // Testa os enderecos conhecidos e abre o primeiro que responder.
+    // Protege o acesso durante a propagacao do CDN do GitHub Pages.
+    var CANDIDATOS = ["https://benefit-excerpt-bowling-acid.trycloudflare.com"];
+    var teste = 0;
+    function tentar(i) {
+        if (i >= CANDIDATOS.length) {
+            document.getElementById('erro').style.display = 'block';
+            setTimeout(function () { location.replace(CANDIDATOS[0]); }, 4000);
+            return;
+        }
+        var url = CANDIDATOS[i];
+        try {
+            var ctl = AbortSignal.timeout ? AbortSignal.timeout(8000) : undefined;
+            fetch(url + '/api/health', { mode: 'no-cors', cache: 'no-store', signal: ctl })
+                .then(function () { if (i === 0) location.replace(url); else tentar(i); })
+                .catch(function () { tentar(i + 1); });
+        } catch (e) { tentar(i + 1); }
+        teste++;
+    }
+    if (window.fetch) { setTimeout(function () { tentar(0); }, 600); }
+    </script>
 </body>
 </html>
